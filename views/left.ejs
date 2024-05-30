@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Great Library Management System</title>
+    <link rel="stylesheet" href="/sytlesheets/common.css" />
+    <style>
+        body {
+            background-color: #d1d0d0;
+        }
+        img {
+            width: 100px;
+            height: auto;
+        }
+        a {
+            color: #333;
+            text-decoration: none;
+        }
+        .nav-left h3{
+            padding: 40px;
+            text-align: center;
+        }
+        .nav-left > ul {
+            padding: 0;
+            cursor: pointer;
+        }
+        .nav-left > ul > li {
+            list-style: none;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .nav-left > ul > li.active {
+            background-color: #acaaaa;
+        }
+        .out{
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            line-height: 40px;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button{
+            width: 50px;
+            border: none;
+            background-color: #f1f1f1;
+        }
+    </style>
+  </head>
+
+  <body>
+    <div class="nav-left">
+        <h3>
+            <img src="/images/logo.png" alt=""><br>
+            The Great Library
+        </h3>
+        <ul>
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="/book" target="right">Books</a></li>
+            <li><a href="/user" target="right">Users</a></li>
+            <li><a href="/finance" target="right">Finance</a></li>
+        </ul>
+        <button id="logoutBtn" class="out">Log out</button>
+    </div>
+    <script src="/javascripts/jquery.js"></script>
+    <script>
+        $(function(){
+            $('.nav-left > ul > li').click(function(){
+                $('.nav-left > ul > li').removeClass('active');
+                $(this).addClass('active');
+            });
+        });
+    </script>
+    <script>
+        $('#logoutBtn').click(function(){
+            $.get('/logout', function() {
+                window.location.href = '/admin';
+            });
+        });
+    </script>
+  </body>
+</html>

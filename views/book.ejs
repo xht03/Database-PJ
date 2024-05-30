@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Great Library Management System</title>
+    
+    <style>
+        .container{
+            width: 100vw;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .main{
+            overflow: hidden;
+        }
+        .select{
+            display: flex;            
+            justify-content: center;
+            padding: 20px 30px;
+            background-color: #fedddd;
+            border-radius: 10px;
+        }
+        .select form{
+            display: flex;
+            justify-content: center;
+        }
+        .select select{
+            padding: 0 20px;
+            width: 100px;
+            height: 40px;
+            color: #999999;
+            background-color: #fff;
+            border-radius: 10px;
+            outline: none;
+        }
+        .select .search{
+            display: flex;
+            width: 800px;
+            height: 40px;
+            justify-content: space-between;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .select .search input{
+            width: 150px;
+            flex-grow: 1;
+        }
+        .select .search button{
+            width: 100px;
+            height: 40px;
+            text-align: center;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 10px;
+        }
+        .content{
+            margin-top: 30px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+        }
+        .table{
+            width: 100%;
+            color: #4d4d4d;
+            border-collapse: collapse;
+            text-align: center;
+            line-height: 40px;
+        }
+        .dialog{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            opacity: .5;
+        }
+        .dialog-wrap{
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 999;
+            padding: 20px;
+            width: 400px;
+            margin-left: -100px;
+            background-color: #fff;
+            border-radius: 10px;
+            transform: translate(-50%, -50%);
+        }
+        .dialog-table{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            position: relative;
+        }
+        .dialog-table button{
+            padding: 10px 10px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            align-items: center;
+        }
+        .isDialog{
+            display: none;
+        }
+        .isDelete{
+            display: none;
+        }
+        .page{
+            width: 100%;
+            padding: 20px;
+            color: #000;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+        }
+        .page ul li{
+            margin-right: 10px;
+
+
+        }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+        <div class="main">
+            <!--搜索功能-->
+            <div class="select">
+                <form action="/searchbook" method="post" id="search">
+                    <div class="search">
+                        <input type="text" name="isbn" placeholder="Enter ISBN">
+                        <input type="text" name="title" placeholder="Enter Title">
+                        <input type="text" name="author" placeholder="Enter Author">
+                        <input type="text" name="publisher" placeholder="Enter Publisher">
+                        <button>Search</button>
+                        <button id="addBtn">Add</button>
+                    </div>
+                </form>
+                
+            </div>
+
+            <!--图书列表-->
+            <div class="content">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ISBN</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Publisher</th>
+                            <th>Stock</th>
+                            <th>Price</th>
+                            <th>Operation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% book.rows.forEach(function(item){ %>
+                        <tr>
+                            <td><%= item.isbn %></td>
+                            <td><%= item.title %></td>
+                            <td><%= item.author %></td>
+                            <td><%= item.publisher %></td>
+                            <td><%= item.stock %></td>
+                            <td><%= item.sales %></td>
+                            <td>
+                                <button class="editBtn" data-id="<%= item.isbn%>">Edit</button>
+                                <button class="deleteBtn" data-id="<%= item.isbn%>">Delete</button>
+                            </td>
+                        </tr>    
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!--增加功能-->
+    <div class="dialog-wrap isDialog">
+        <div calss="dialog-table">
+            <h2>Add Book Information</h2>
+            <form action="/addbook" method="post" id="add">
+                <input type="text" name="isbn" placeholder="ISBN">
+                <input type="text" name="title" placeholder="Title">
+                <input type="text" name="author" placeholder="Author">
+                <input type="text" name="publisher" placeholder="Publisher">
+                <input type="text" name="stock" placeholder="Stock">
+                <input type="text" name="price" placeholder="Price">
+                <button type="submit">Submit</button>
+                <button type="button" id="closeBtn">Close</button>
+            </form>
+        </div>
+    </div>
+    <script src="/javascripts/jquery.js"></script>
+    <script>
+        $('#addBtn').click(function(e){
+            e.preventDefault();
+            $('.isDialog').show();
+        });
+        $('#closeBtn').click(function(){
+            $('.isDialog').hide();
+        });
+    </script>
+
+    <!--删除功能-->
+    <div class="dialog-wrap isDelete">
+        <div calss="dialog-table">
+            <h2>Confirm Deletion?</h2>
+            <button type="button" class="confirmBtn">Confirm</button>
+            <button type="button" class="cancelBtn">Cancel</button>
+        </div>
+    </div>
+    <script src="/javascripts/jquery.js"></script>
+    <script>
+        var isbn = '';
+        $('.deleteBtn').click(function(e){
+            isbn = $(this).data('id');
+            e.preventDefault();
+            $('.isDelete').show();
+        });
+        $('.cancelBtn').click(function(){
+            $('.isDelete').hide();
+        });
+        $('.confirmBtn').click(function(){
+            window.location.href = '/deletebook?isbn=' + isbn;
+        });
+    </script>
+
+    <!--编辑功能-->
+    <div class="dialog-wrap isEdit">
+        <div calss="dialog-table">
+            <h2>Edit Book Information</h2>
+            <form action="/editbook" method="post" id="edit">
+                <input type="text" name="isbn">
+                <input type="text" name="title" placeholder="Title">
+                <input type="text" name="author" placeholder="Author">
+                <input type="text" name="publisher" placeholder="Publisher">
+                <input type="text" name="stock" placeholder="Stock">
+                <input type="text" name="price" placeholder="Price">
+                <button type="submit" class="confirmBtn">Confirm</button>
+                <button type="button" class="cancelBtn">Cancel</button>
+            </form>
+        </div>
+    </div>
+    <script src="/javascripts/jquery.js"></script>
+    <script>
+        var isbn = '';
+        $('.editBtn').click(function(e){
+            isbn = $(this).data('id');
+            e.preventDefault();
+            $('.isEdit').show();
+            $('input[name="isbn"]').val(isbn);
+        });
+        $('.cancelBtn').click(function(){
+            $('.isEdit').hide();
+        });
+    </script>
+
+
+  </body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Great Library Management System</title>
+    
+    <style>
+        .container{
+            width: 100vw;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .main{
+            overflow: hidden;
+        }
+        .select{
+            display: flex;            
+            justify-content: center;
+            padding: 20px 30px;
+            background-color: #fedddd;
+            border-radius: 10px;
+        }
+        .select form{
+            display: flex;
+            justify-content: center;
+        }
+        .select select{
+            padding: 0 20px;
+            width: 150px;
+            height: 40px;
+            color: #999999;
+            background-color: #fff;
+            border-radius: 10px;
+            outline: none;
+        }
+        .select .search{
+            display: flex;
+            width: 900px;
+            height: 40px;
+            justify-content: space-between;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .select .search input{
+            width: 150px;
+            flex-grow: 1;
+        }
+        .select .search button{
+            width: 100px;
+            height: 40px;
+            text-align: center;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 10px;
+        }
+        .content{
+            margin-top: 30px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+        }
+        .table{
+            width: 100%;
+            color: #4d4d4d;
+            border-collapse: collapse;
+            text-align: center;
+            line-height: 40px;
+        }
+        .dialog{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            opacity: .5;
+        }
+        .dialog-wrap{
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 999;
+            padding: 20px;
+            width: 400px;
+            margin-left: -100px;
+            background-color: #fff;
+            border-radius: 10px;
+            transform: translate(-50%, -50%);
+        }
+        .dialog-table{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            position: relative;
+        }
+        .dialog-table button{
+            padding: 10px 10px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            align-items: center;
+        }
+        .isDialog{
+            display: none;
+        }
+        .isDelete{
+            display: none;
+        }
+        .page{
+            width: 100%;
+            padding: 20px;
+            color: #000;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+        }
+        .page ul li{
+            margin-right: 10px;
+
+
+        }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+        <div class="main">
+            <!--搜索功能（仅支持id、isbn、title三种搜索方式）-->
+            <div class="select">
+                <form action="/searchfinance" method="post" id="search">
+                    <select name="type" id="">
+                        <option value="">Null</option>
+                        <option value="Purchase">Purchase</option>
+                        <option value="Sale">Sale</option>
+                    </select>
+                    <select name="status" id="">
+                        <option value="">Null</option>
+                        <option value="Unpaid">Unpaid</option>
+                        <option value="Paid">Paid</option>
+                    </select>
+                    <div class="search">
+                        <input type="text" name="id" placeholder="Enter ID">
+                        <input type="text" name="isbn" placeholder="Enter ISBN">
+                        <input type="text" name="title" placeholder="Enter Title">
+                        <button>Search</button>
+                        <button id="addBtn">Add</button>
+                    </div>
+                </form>
+                
+            </div>
+
+            <!--图书列表-->
+            <div class="content">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ISBN</th>
+                            <th>Title</th>
+                            <th>Number</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Operation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% finance.rows.forEach(function(item){ %>
+                        <tr>
+                            <td><%= item.id %></td>
+                            <td><%= item.isbn %></td>
+                            <td><%= item.title %></td>
+                            <td><%= item.num %></td>
+                            <td><%= item.price %></td>
+                            <td><%= item.num * item.price %></td>
+                            <td><%= item.btime %></td>
+                            <td><%= item.type %></td>
+                            <td><%= item.status %></td>
+                            <td>
+                                <button class="paidBtn" data-id="<%= item.id%>">Pay</button>
+                                <button class="quitBtn" data-id="<%= item.id%>">Quit</button>
+                            </td>
+                        </tr>    
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!--增加功能-->
+    <div class="dialog-wrap isDialog">
+        <div calss="dialog-table">
+            <h2>Add a new bill</h2>
+            <form action="/addfinance" method="post" id="add">
+                <input type="text" name="isbn" placeholder="ISBN">
+                <input type="text" name="num" placeholder="Number">
+                <input type="text" name="price" placeholder="Price" id="priceInput">
+                <select name="type" id="typeSelect">
+                    <option value="Purchase">Purchase</option>
+                    <option value="Sale">Sale</option>
+                </select>
+                <button type="submit">Submit</button>
+                <button type="button" id="closeBtn">Close</button>
+            </form>
+        </div>
+    </div>
+    <script src="/javascripts/jquery.js"></script>
+    <script>
+        $('#addBtn').click(function(e){
+            e.preventDefault();
+            $('.isDialog').show();
+        });
+        $('#closeBtn').click(function(){
+            $('.isDialog').hide();
+        });
+        $('#typeSelect').change(function(){
+            if ($(this).val() === 'Purchase') {
+                $('#priceInput').prop('disabled', true);
+            } else {
+                $('#priceInput').prop('disabled', false);
+            }
+        });
+    </script>
+
+    <!--删除功能-->
+    <div class="dialog-wrap isDelete">
+        <div calss="dialog-table">
+            <h2>Cancel the bill?</h2>
+            <button type="button" class="yesBtn">Yes</button>
+            <button type="button" class="cancelBtn">No</button>
+        </div>
+    </div>
+    <script src="/javascripts/jquery.js"></script>
+    <script>
+        var id = '';
+        $('.quitBtn').click(function(e){
+            id = $(this).data('id');
+            e.preventDefault();
+            $('.isDelete').show();
+        });
+        $('.cancelBtn').click(function(){
+            $('.isDelete').hide();
+        });
+        $('.yesBtn').click(function(){
+            window.location.href = '/cancelfinance?id=' + id;
+        });
+    </script>
+
+    <!--付款功能-->
+    <div class="dialog-wrap isPay">
+        <div calss="dialog-table">
+            <h2>Sure to pay the bill?</h2>
+            <button type="button" class="confirmBtn">Yes</button>
+            <button type="button" class="cancelBtn">No</button>
+        </div>
+    </div>
+    <script src="/javascripts/jquery.js"></script>
+    <script>
+        var isbn = '';
+        $('.paidBtn').click(function(e){
+            id = $(this).data('id');
+            e.preventDefault();
+            $('.isPay').show();
+        });
+        $('.cancelBtn').click(function(){
+            $('.isPay').hide();
+        });
+        $('.confirmBtn').click(function(){
+            window.location.href = '/payfinance?id=' + id;
+        });
+    </script>
+
+
+  </body>
+</html>
