@@ -17,3 +17,5 @@
 - 查看账单
 ### 实现方法
 postgresql + node.js + express
+### 相关教程
+[延绪的水上书](xht03.online)
